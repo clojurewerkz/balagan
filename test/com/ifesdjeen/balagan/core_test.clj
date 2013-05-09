@@ -22,17 +22,19 @@
 (deftest extract-paths-test
   (testing "Extract paths from a vector"
     (has-all-paths? (extract-paths [1 2 3])
-                    [[0] [1] [2]]))
+                    [[] [0] [1] [2]]))
 
   (testing "Extract paths from a simple map"
     (has-all-paths? (extract-paths {:a {:b {:c :d}}})
-                    [[:a]
+                    [[]
+                     [:a]
                      [:a :b]
                      [:a :b :c]]))
 
   (testing "Extract paths from a map that has vectors"
     (has-all-paths? (extract-paths {:a :b :c {:d :e :f {:g '(1 2 3)}}})
-                    [[:a]
+                    [[]
+                     [:a]
                      [:c]
                      [:c :d]
                      [:c :f]
@@ -54,3 +56,37 @@
       (transform
        {:a :b :c {:d :e :f {:g [1 2 3]}}}
        [:c :f :g :*] inc)))
+
+(deftest add-field-test
+  (is (= {:e :f :c :d :a :b}
+         (transform
+          {:a :b}
+          [] (do->
+              (add-field :c :d)
+              (add-field :e :f))))))
+
+(deftest remove-field-test
+  (is (= {:a :b}
+         (transform
+          {:e :f :c :d :a :b}
+          [] (do->
+              (remove-field :e)
+              (remove-field :c))))))
+
+(deftest fn-test
+  (let [m {:a :1}]
+    (is (= 2
+           (:b (transform m [] #(assoc % :b 2)))))))
+
+(deftest add-node-test
+  (let [m {:a 1}]
+    (is (= 2
+           (:inc-a
+            (transform m
+                       (new-path [:inc-a]) #(inc (:a %)))))))
+
+  (let [m {:a :1}]
+    (is (= 2
+           (:b
+            (transform m
+                       (new-path [:b]) 2))))))

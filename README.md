@@ -10,17 +10,40 @@ they were plain.
 Balagan solves that problem for you by providing you with predicate-based selectors and arbitrary
 transformation functions that suits any taste.
 
+## Library status
+
+It's a couple of days old so far, this section will be updated as it matures. Plan is to use it
+to avoid having anything to do with entity mappers or ORMs. Data access layer is hard enough
+problem by itself, complexing it with entity mappers that hide retrieval logic from you won't
+help in the long run (think ActiveRecord, Hibernate and friends). With a very little code,
+you'll be able to construct and trasnform very complex entities, without hiding any of the
+retrieval / implementation details. No magic involved.
+
+## Usage
+
+If you don't get Enlive way of doing things, most likely the approach will be foreign. Nevetheless,
+as the library matures, there will be more / better use cases described here. For now, it's mostly
+a quick overview. For more details, please refer test suite.
+
 Let's say you're working on a Data Access layer for the application. You have a user entry
 represented as hash:
 
 ```clojure
-{:name "Alex"
- :nickname "ifesdjeen"}
+(def user
+  {:name "Alex"
+   :birth-year 1990
+   :nickname "ifesdjeen"})
 ```
 
-## Usage
+Now, we can start transforming users the way we want: add, remove fields based on certain conditions.
 
-
+```clojure
+(transform user
+           []                  (add-field :cool-dude true) ;; adds a field :cool-dude with value true
+           (new-path [:age])   #(- 2013 (:birth-year %))   ;; explicit adding of a new field, calculated from the existing data
+           (new-path [:posts]) #(fetch-posts (:name %))    ;; fetching some related data from the DB
+           [:posts :*]         #(transform-posts %))       ;; apply some transformations to all the fetched posts, if there are any
+```
 
 ## License
 

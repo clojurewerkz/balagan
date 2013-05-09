@@ -1,5 +1,8 @@
-(ns com.ifesdjeen.balagan.core
-  )
+(ns com.ifesdjeen.balagan.core)
+
+(def star-node  :*)
+(def star?      #(= star-node %))
+(def root-node? #(empty? %))
 
 (defn indexed
   "Returns a lazy sequence of [index, item] pairs, where items come
@@ -12,12 +15,20 @@
 (defn- path?
   [v]
   (and (sequential? v)
-       (not (empty? v))
        (:path (meta v))))
+
+(defn new-path?
+  [v]
+  (and (path? v)
+       (:new-path (meta v))))
 
 (defn- p
   [v]
   (vary-meta v assoc :path true))
+
+(defn new-path
+  [v]
+  (p (vary-meta v assoc :new-path true)))
 
 (defn- get-paths
   [x]
@@ -28,23 +39,23 @@
   (recurse-with-path [v path]))
 
 (extend-protocol RecurseWithPath
-    clojure.lang.IPersistentMap
-    (recurse-with-path [m path]
-      (conj
-       (for [[k v] m]
-               (recurse-with-path v (conj path k)))
-       (p path)))
+  clojure.lang.IPersistentMap
+  (recurse-with-path [m path]
+    (conj
+     (for [[k v] m]
+       (recurse-with-path v (conj path k)))
+     (p path)))
 
-    clojure.lang.IPersistentCollection
-    (recurse-with-path [m path]
-      (conj
-       (for [[k v] (indexed m)]
-         (recurse-with-path v (p (conj path k))))
-       (p path)))
+  clojure.lang.IPersistentCollection
+  (recurse-with-path [m path]
+    (conj
+     (for [[k v] (indexed m)]
+       (recurse-with-path v (p (conj path k))))
+     (p path)))
 
-    Object
-    (recurse-with-path [m path]
-      (p path)))
+  Object
+  (recurse-with-path [m path]
+    (p path)))
 
 (defn extract-paths
   "Extracts paths from the given sequence"
@@ -52,8 +63,6 @@
   (-> s
       (recurse-with-path [])
       get-paths))
-
-(def star? #(= :* %))
 
 (defn resolve-pattern
   "TODO: DOCSTRING"
@@ -75,27 +84,59 @@
                         (partition 2 (interleave
                                       (resolve-pattern pattern)
                                       path)))
-      :else               false))
+      :else             false))
 
 (defn filter-matching-paths
   [paths pattern]
-  (vec (filter #(path-matches? % pattern) paths)))
+  (let [matched-parts (filter #(path-matches? % pattern) paths)]
+    (vec
+     (if (new-path? pattern)
+       (conj matched-parts pattern)
+       matched-parts))))
 
 (defn matching-paths
   [m bodies]
   (let [all-paths (extract-paths m)]
     (->> (partition 2 (vec bodies))
          (map (fn [[selector transformation]]
-                (interleave (filter-matching-paths all-paths selector) (repeat 3 transformation))))
+                (let [paths (filter-matching-paths all-paths selector)]
+                  (interleave paths (repeat (count paths) transformation)))))
          (mapcat identity)
          (apply hash-map))))
 
 (defmacro transform
   [m & bodies]
-  (let [matched-parts (matching-paths m bodies)]
+  (let [bodies-v (vec bodies)]
     `(reduce (fn [acc# [path# transformation#]]
-               (assoc-in acc# path#
-                         (cond
-                          (fn? transformation#) (transformation# (get-in acc# path#))
-                          :else                 transformation#)))
-             ~m ~matched-parts)))
+              (cond
+               (root-node? path#) (transformation# acc#)
+               (new-path? path#)  (assoc-in acc# path#
+                                            (cond
+                                             (fn? transformation#) (transformation# acc#)
+                                             :else                 transformation#))
+               :else              (assoc-in acc# path#
+                                            (cond
+                                             (fn? transformation#) (transformation# (get-in acc# path#))
+                                             :else                 transformation#))))
+            ~m (matching-paths ~m ~bodies-v))))
+
+;;
+;; Helpers
+;;
+
+(defmacro add-field
+  "Adds field to the selected entry"
+  [field & body]
+  `(fn [m#]
+     (assoc m# ~field ~@body)))
+
+(defmacro remove-field
+  "Removes field from selected entry"
+  [field]
+  `(fn [m#]
+     (dissoc m# ~field)))
+
+(defn do->
+  "Chains (composes) several transformations. Applies functions from left to right."
+  [& fns]
+  #(reduce (fn [acc f] (f acc)) % fns))
