@@ -45,6 +45,36 @@ Now, we can start transforming users the way we want: add, remove fields based o
            [:posts :*]         #(transform-posts %))       ;; apply some transformations to all the fetched posts, if there are any
 ```
 
+## Artifacts
+
+Balagan artifacts are [released to Clojars](https://clojars.org/ifesdjeen/balagan). If you are using Maven, add the following repository
+definition to your `pom.xml`:
+
+``` xml
+<repository>
+  <id>clojars.org</id>
+  <url>http://clojars.org/repo</url>
+</repository>
+```
+
+### Most recent pre-release version
+
+With Leiningen:
+
+```clojure
+[com.ifesdjeen/balagan "0.1.0"]
+```
+
+With Maven:
+
+```xml
+<dependency>
+  <groupId>com.ifesdjeen</groupId>
+  <artifactId>balagan</artifactId>
+  <version>0.1.0</version>
+</dependency>
+```
+
 ## License
 
 Copyright © 2013 Alex P
