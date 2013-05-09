@@ -14,8 +14,7 @@
      (is (= (count ~extracted)
             (count ~paths))
          (format "Unmatched extracted paths: %s"
-          (cs/difference (set ~extracted) (set ~paths)))
-         )
+          (cs/difference (set ~extracted) (set ~paths))))
      (doseq [path# ~paths]
        (is (vec-contains? ~extracted path#)
            (format "Vector `%s` doesn't contain path `%s`" (vec ~extracted) path#)))))
