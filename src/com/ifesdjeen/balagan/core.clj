@@ -1,4 +1,5 @@
-(ns com.ifesdjeen.balagan.core)
+(ns com.ifesdjeen.balagan.core
+  )
 
 (defn indexed
   "Returns a lazy sequence of [index, item] pairs, where items come
@@ -82,12 +83,12 @@
 
 (defn matching-paths
   [m bodies]
-  (let [all-paths (extract-paths m)
-        paths     (apply hash-map
-                         (mapcat identity
-                                 (for [[selector transformation] (partition 2 (vec bodies))]
-                                   (vec (interleave (filter-matching-paths all-paths selector) (repeat 3 transformation))))))]
-    paths))
+  (let [all-paths (extract-paths m)]
+    (->> (partition 2 (vec bodies))
+         (map (fn [[selector transformation]]
+                (interleave (filter-matching-paths all-paths selector) (repeat 3 transformation))))
+         (mapcat identity)
+         (apply hash-map))))
 
 (defmacro transform
   [m & bodies]
@@ -96,5 +97,5 @@
                (assoc-in acc# path#
                          (cond
                           (fn? transformation#) (transformation# (get-in acc# path#))
-                          :else                 transformation#))
-               ) ~m ~matched-parts)))
+                          :else                 transformation#)))
+             ~m ~matched-parts)))

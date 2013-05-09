@@ -1,4 +1,5 @@
-(ns com.ifesdjeen.core.balagan-test
+(ns com.ifesdjeen.balagan.core-test
+  (:require [clojure.set :as cs])
   (:use clojure.test
         com.ifesdjeen.balagan.core))
 
@@ -13,7 +14,7 @@
      (is (= (count ~extracted)
             (count ~paths))
          (format "Unmatched extracted paths: %s"
-          (clojure.set/difference (set ~extracted) (set ~paths)))
+          (cs/difference (set ~extracted) (set ~paths)))
          )
      (doseq [path# ~paths]
        (is (vec-contains? ~extracted path#)
@@ -53,7 +54,4 @@
   (is (= {:a :b, :c {:f {:g [2 3 4]}, :d :e}})
       (transform
        {:a :b :c {:d :e :f {:g [1 2 3]}}}
-       [:c :f :g :*] inc
-       ))
-
-  )
+       [:c :f :g :*] inc)))
