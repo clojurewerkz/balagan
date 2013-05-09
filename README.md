@@ -47,7 +47,7 @@ Now, we can start transforming users the way we want: add, remove fields based o
 
 ## Artifacts
 
-Balagan artifacts are [released to Clojars](https://clojars.org/ifesdjeen/balagan). If you are using Maven, add the following repository
+Balagan artifacts are [released to Clojars](https://clojars.org/com.ifesdjeen/balagan). If you are using Maven, add the following repository
 definition to your `pom.xml`:
 
 ``` xml
