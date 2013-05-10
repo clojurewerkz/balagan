@@ -7,7 +7,7 @@ too close to the data domain, and your functions get messy and difficult to writ
 too nested) or you're too far away from data, and your functions operate nested structures as if
 they were plain.
 
-Balagan solves that problem for you by providing you with predicate-based selectors and arbitrary
+Bałagan solves that problem for you by providing you with predicate-based selectors and arbitrary
 transformation functions that suits any taste.
 
 ## Library status
@@ -47,8 +47,7 @@ Now, we can start transforming users the way we want: add, remove fields based o
 
 ## Artifacts
 
-Balagan artifacts are [released to Clojars](https://clojars.org/com.ifesdjeen/balagan). If you are using Maven, add the following repository
-definition to your `pom.xml`:
+Bałagan artifacts are [released to Clojars](https://clojars.org/ifesdjeen/balagan). If you are using Maven, add the following repository definition to your `pom.xml`:
 
 ``` xml
 <repository>
