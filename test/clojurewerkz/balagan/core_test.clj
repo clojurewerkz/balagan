@@ -1,7 +1,7 @@
-(ns com.ifesdjeen.balagan.core-test
+(ns clojurewerkz.balagan.core-test
   (:require [clojure.set :as cs])
   (:use clojure.test
-        com.ifesdjeen.balagan.core))
+        clojurewerkz.balagan.core))
 
 (defn vec-contains?
   "Wether the vec contains certain val"

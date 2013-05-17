@@ -1,4 +1,4 @@
-(ns com.ifesdjeen.balagan.core)
+(ns clojurewerkz.balagan.core)
 
 (def star-node  :*)
 (def star?      #(= star-node %))

@@ -47,7 +47,7 @@ Now, we can start transforming users the way we want: add, remove fields based o
 
 ## Artifacts
 
-Bałagan artifacts are [released to Clojars](https://clojars.org/com.ifesdjeen/balagan). If you are using Maven, add the following repository definition to your `pom.xml`:
+Bałagan artifacts are [released to Clojars](https://clojars.org/clojurewerkz/balagan). If you are using Maven, add the following repository definition to your `pom.xml`:
 
 ``` xml
 <repository>
@@ -61,14 +61,14 @@ Bałagan artifacts are [released to Clojars](https://clojars.org/com.ifesdjeen/b
 With Leiningen:
 
 ```clojure
-[com.ifesdjeen/balagan "0.1.0"]
+[clojurewerkz/balagan "0.1.0"]
 ```
 
 With Maven:
 
 ```xml
 <dependency>
-  <groupId>com.ifesdjeen</groupId>
+  <groupId>clojurewerkz</groupId>
   <artifactId>balagan</artifactId>
   <version>0.1.0</version>
 </dependency>
