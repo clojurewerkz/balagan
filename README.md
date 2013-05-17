@@ -45,6 +45,13 @@ Now, we can start transforming users the way we want: add, remove fields based o
            [:posts :*]         #(transform-posts %))       ;; apply some transformations to all the fetched posts, if there are any
 ```
 
+
+## Community
+
+To subscribe for announcements of releases, important changes and so on, please follow
+[@ClojureWerkz](https://twitter.com/#!/clojurewerkz) on Twitter.
+
+
 ## Artifacts
 
 Bałagan artifacts are [released to Clojars](https://clojars.org/clojurewerkz/balagan). If you are using Maven, add the following repository definition to your `pom.xml`:
@@ -73,6 +80,34 @@ With Maven:
   <version>0.1.0</version>
 </dependency>
 ```
+
+
+## Balagan Is a ClojureWerkz Project
+
+Balagan is part of the [group of libraries known as ClojureWerkz](http://clojurewerkz.org), together with
+[Monger](https://clojuremongodb.info), [Welle](https://clojureriak.info), [Neocons](https://clojureneo4j.info),
+[Elastisch](https://clojureelasticsearch.info) and several others.
+
+
+## Continuous Integration
+
+[![Continuous Integration status](https://secure.travis-ci.org/clojurewerkz/balagan.png)](http://travis-ci.org/clojurewerkz/balagan)
+
+CI is hosted by [travis-ci.org](http://travis-ci.org)
+
+
+## Development
+
+Balagan uses [Leiningen 2](https://github.com/technomancy/leiningen/blob/master/doc/TUTORIAL.md). Make
+sure you have it installed and then run tests against all supported Clojure versions using
+
+```
+lein2 all test
+```
+
+Then create a branch and make your changes on it. Once you are done with your changes and all
+tests pass, submit a pull request on Github.
+
 
 ## License
 
