@@ -76,6 +76,6 @@ With Maven:
 
 ## License
 
-Copyright © 2013 Alex P
+Copyright © 2013 Alex P, Michael S. Klishin
 
 Distributed under the Eclipse Public License, the same as Clojure.
