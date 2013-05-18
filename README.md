@@ -1,6 +1,6 @@
-# `Hash` is synonym of `Mess`, Bałagan is it's Slavic brother
+# What Is Balagan
 
-A tiny library for data structure transformation in spirit on [Enlive](https://github.com/cgrand/enlive).
+A tiny library for data structure transformation inspired by [Enlive](https://github.com/cgrand/enlive).
 
 It's often hard to come up with a sensible DSL for data structure transformation. You either get
 too close to the data domain, and your functions get messy and difficult to write (or even maybe
@@ -10,46 +10,9 @@ they were plain.
 Bałagan solves that problem for you by providing you with predicate-based selectors and arbitrary
 transformation functions that suits any taste.
 
-## Library status
+## Project Maturity
 
-It's a couple of days old so far, this section will be updated as it matures. Plan is to use it
-to avoid having anything to do with entity mappers or ORMs. Data access layer is hard enough
-problem by itself, complexing it with entity mappers that hide retrieval logic from you won't
-help in the long run (think ActiveRecord, Hibernate and friends). With a very little code,
-you'll be able to construct and trasnform very complex entities, without hiding any of the
-retrieval / implementation details. No magic involved.
-
-## Usage
-
-If you don't get Enlive way of doing things, most likely the approach will be foreign. Nevetheless,
-as the library matures, there will be more / better use cases described here. For now, it's mostly
-a quick overview. For more details, please refer test suite.
-
-Let's say you're working on a Data Access layer for the application. You have a user entry
-represented as hash:
-
-```clojure
-(def user
-  {:name "Alex"
-   :birth-year 1990
-   :nickname "ifesdjeen"})
-```
-
-Now, we can start transforming users the way we want: add, remove fields based on certain conditions.
-
-```clojure
-(transform user
-           []                  (add-field :cool-dude true) ;; adds a field :cool-dude with value true
-           (new-path [:age])   #(- 2013 (:birth-year %))   ;; explicit adding of a new field, calculated from the existing data
-           (new-path [:posts]) #(fetch-posts (:name %))    ;; fetching some related data from the DB
-           [:posts :*]         #(transform-posts %))       ;; apply some transformations to all the fetched posts, if there are any
-```
-
-
-## Community
-
-To subscribe for announcements of releases, important changes and so on, please follow
-[@ClojureWerkz](https://twitter.com/#!/clojurewerkz) on Twitter.
+Balagan is a **very** young project.
 
 
 ## Artifacts
@@ -82,6 +45,39 @@ With Maven:
 ```
 
 
+## Documentation and Examples
+
+Balagan builds on ideas from [Enlive](https://github.com/cgrand/enlive). It may help to get familiar with them
+first.
+
+Let's say you're working on a Data Access layer for the application. You have a user entry
+represented as hash:
+
+```clojure
+(def user
+  {:name "Alex"
+   :birth-year 1990
+   :nickname "ifesdjeen"})
+```
+
+Now, we can start transforming users the way we want: add, remove fields based on certain conditions.
+
+```clojure
+(transform user
+           []                  (add-field :cool-dude true) ;; adds a field :cool-dude with value true
+           (new-path [:age])   #(- 2013 (:birth-year %))   ;; explicit adding of a new field, calculated from the existing data
+           (new-path [:posts]) #(fetch-posts (:name %))    ;; fetching some related data from the DB
+           [:posts :*]         #(transform-posts %))       ;; apply some transformations to all the fetched posts, if there are any
+```
+
+
+## Community
+
+To subscribe for announcements of releases, important changes and so on, please follow
+[@ClojureWerkz](https://twitter.com/#!/clojurewerkz) on Twitter.
+
+
+
 ## Balagan Is a ClojureWerkz Project
 
 Balagan is part of the [group of libraries known as ClojureWerkz](http://clojurewerkz.org), together with
@@ -107,6 +103,12 @@ lein2 all test
 
 Then create a branch and make your changes on it. Once you are done with your changes and all
 tests pass, submit a pull request on Github.
+
+
+## Balagan?
+
+`Hash` is a synonym of `mess`, Bałagan means `mess` in several Slavic
+languages.
 
 
 ## License
