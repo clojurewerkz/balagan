@@ -60,6 +60,8 @@ represented as hash:
    :nickname "ifesdjeen"})
 ```
 
+### Transformation
+
 Now, we can start transforming users the way we want: add, remove fields based on certain conditions.
 
 ```clojure
@@ -68,6 +70,35 @@ Now, we can start transforming users the way we want: add, remove fields based o
            (new-path [:age])   #(- 2013 (:birth-year %))   ;; explicit adding of a new field, calculated from the existing data
            (new-path [:posts]) #(fetch-posts (:name %))    ;; fetching some related data from the DB
            [:posts :*]         #(transform-posts %))       ;; apply some transformations to all the fetched posts, if there are any
+```
+
+### Queries
+
+You can also run predicate queries based on your map, for example if you want to configure your database servers
+from rather big and complex config:
+
+```clj
+(def conf {:db
+           {:redis {:cache  [{:host "host01" :port 1234} {:host "host02" :port 1234}]
+                    :pubsub [{:host "host01" :port 1234} {:host "host02" :port 1234}]}}
+           :cassandra [{:host "host01"} {:host "host02"}]})
+
+(select conf
+        [:db :redis :cache]  configure-redis-cache
+        [:db :redis :pubsub] configure-redis-pubsub
+        [:db :cassandra]     configure-cassandra)
+```
+
+In this example, `configure-redis-cache` funciton will receive two arguments: `value` and `path`:
+
+```clj
+(defn configure-redis-cache
+  [value path]
+  (println "Value: " value)
+  (println "Path: " path))
+
+;; => Value: [{:host host01, :port 1234} {:host host02, :port 1234}]
+;; => Path: [:db :redis :cache]
 ```
 
 
