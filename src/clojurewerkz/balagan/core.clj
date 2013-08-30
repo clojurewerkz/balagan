@@ -120,6 +120,15 @@
                                              :else                 transformation#))))
             ~m (matching-paths ~m ~bodies-v))))
 
+(defmacro select
+  [m & bodies]
+  (let [bodies-v (vec bodies)]
+    `(reduce (fn [acc# [path# funk#]]
+               (cond
+                (root-node? path#) (funk# acc# path#)
+                :else              (funk# (get-in acc# path#) path#))
+               acc#)
+            ~m (matching-paths ~m ~bodies-v))))
 ;;
 ;; Helpers
 ;;

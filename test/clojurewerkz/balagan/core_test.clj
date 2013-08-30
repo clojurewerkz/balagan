@@ -90,3 +90,29 @@
            (:b
             (transform m
                        (new-path [:b]) 2))))))
+
+
+(deftest select-test
+  (select {:a :b :c {:d :e :f {:g [1 2 3]}}}
+          [:a] #(do
+                  (is (= :b %1))
+                  (is (= [:a] %2))))
+
+
+  (select {:a {:b {:c 1} :d {:c 2}}}
+          [:a :* :c] (fn [val path]
+                       (if (= path [:a :b :c])
+                         (is (= val 1))
+                         (is (= val 2)))))
+
+  (select {:a {1 {:c 1} 2 {:c 2} 3 {:c 3}}}
+          [:a odd? :c] (fn [val path]
+                         (if (= path [:a 1 :c])
+                           (is (= val 1))
+                           (is (= val 3)))))
+
+  (select {:a [{:c 1} {:c 2} {:c 3}]}
+          [:a even? :c] (fn [val path]
+                          (if (= path [:a 0 :c])
+                            (is (= val 1))
+                            (is (= val 3))))))
