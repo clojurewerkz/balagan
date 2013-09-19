@@ -1,4 +1,10 @@
-(ns clojurewerkz.balagan.core)
+(ns clojurewerkz.balagan.core
+  (:require clojure.walk))
+
+(defn unlazify-seqs
+  [m]
+  (let [f (fn [[k v]] (if (instance? clojure.lang.LazySeq v) [k (vec v)] [k v]))]
+    (clojure.walk/postwalk (fn [x] (if (map? x) (into {} (map f x)) x)) m)))
 
 (def star-node  :*)
 (def star?      #(= star-node %))
@@ -53,6 +59,11 @@
        (recurse-with-path v (p (conj path k))))
      (p path)))
 
+  clojure.lang.LazySeq
+  (recurse-with-path [m path]
+    (println (type (vec m)))
+    (recurse-with-path (vec m) path))
+
   Object
   (recurse-with-path [m path]
     (p path)))
@@ -106,19 +117,21 @@
 
 (defmacro transform
   [m & bodies]
-  (let [bodies-v (vec bodies)]
-    `(reduce (fn [acc# [path# transformation#]]
-              (cond
-               (root-node? path#) (transformation# acc#)
-               (new-path? path#)  (assoc-in acc# path#
-                                            (cond
-                                             (fn? transformation#) (transformation# acc#)
-                                             :else                 transformation#))
-               :else              (assoc-in acc# path#
-                                            (cond
-                                             (fn? transformation#) (transformation# (get-in acc# path#))
-                                             :else                 transformation#))))
-            ~m (matching-paths ~m ~bodies-v))))
+  (let [bodies-v (vec bodies)
+        ]
+    `(let [m# (unlazify-seqs ~m)]
+       (reduce (fn [acc# [path# transformation#]]
+                 (cond
+                  (root-node? path#) (transformation# acc#)
+                  (new-path? path#)  (assoc-in acc# path#
+                                               (cond
+                                                (fn? transformation#) (transformation# acc#)
+                                                :else                 transformation#))
+                  :else              (assoc-in acc# path#
+                                               (cond
+                                                (fn? transformation#) (transformation# (get-in acc# path#))
+                                                :else                 transformation#))))
+               m# (matching-paths m# ~bodies-v)))))
 
 (defmacro select
   [m & bodies]

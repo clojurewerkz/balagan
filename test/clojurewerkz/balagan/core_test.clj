@@ -116,3 +116,9 @@
                           (if (= path [:a 0 :c])
                             (is (= val 1))
                             (is (= val 3))))))
+
+
+(deftest transform-lazy-test
+  (is (= {:a {:b [3 4 5]}}
+         (transform {:a {:b (map inc [1 2 3])}}
+                    [:a :b :*] inc))))
