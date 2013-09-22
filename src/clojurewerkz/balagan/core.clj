@@ -3,8 +3,15 @@
 
 (defn unlazify-seqs
   [m]
-  (let [f (fn [[k v]] (if (instance? clojure.lang.LazySeq v) [k (vec v)] [k v]))]
-    (clojure.walk/postwalk (fn [x] (if (map? x) (into {} (map f x)) x)) m)))
+  (let [f (fn [[k v]]
+            (if (instance? clojure.lang.LazySeq v)
+                       [k (vec v)]
+                       [k v]))]
+    (clojure.walk/postwalk (fn [x]
+                             (cond
+                              (map? x) (into {} (map f x))
+                              (sequential? x) (into [] (map identity x))
+                              :else x)) m)))
 
 (def star-node  :*)
 (def star?      #(= star-node %))
@@ -61,7 +68,6 @@
 
   clojure.lang.LazySeq
   (recurse-with-path [m path]
-    (println (type (vec m)))
     (recurse-with-path (vec m) path))
 
   Object
@@ -86,7 +92,7 @@
            :else        #(= part %)))))
 
 (defn path-matches?
-  [path pattern]
+  [pattern path]
   (cond
    (= path pattern)    true
    (= (count path)
@@ -99,39 +105,48 @@
 
 (defn filter-matching-paths
   [paths pattern]
-  (let [matched-parts (filter #(path-matches? % pattern) paths)]
+  (let [matched-parts (filter (partial path-matches? pattern) paths)]
     (vec
      (if (new-path? pattern)
        (conj matched-parts pattern)
        matched-parts))))
 
+(defn expand-path
+  [m [selector transformation]]
+  (let [all-paths (extract-paths m)
+        paths (filter-matching-paths all-paths selector)]
+    (interleave paths (repeat (count paths) transformation))))
+
 (defn matching-paths
   [m bodies]
-  (let [all-paths (extract-paths m)]
+  (let [all-paths (extract-paths m)
+        expand-fn (partial expand-path m)]
     (->> (partition 2 (vec bodies))
-         (map (fn [[selector transformation]]
-                (let [paths (filter-matching-paths all-paths selector)]
-                  (interleave paths (repeat (count paths) transformation)))))
+         expand-fn
          (mapcat identity)
          (apply hash-map))))
 
 (defmacro transform
   [m & bodies]
-  (let [bodies-v (vec bodies)
-        ]
-    `(let [m# (unlazify-seqs ~m)]
-       (reduce (fn [acc# [path# transformation#]]
-                 (cond
-                  (root-node? path#) (transformation# acc#)
-                  (new-path? path#)  (assoc-in acc# path#
-                                               (cond
-                                                (fn? transformation#) (transformation# acc#)
-                                                :else                 transformation#))
-                  :else              (assoc-in acc# path#
-                                               (cond
-                                                (fn? transformation#) (transformation# (get-in acc# path#))
-                                                :else                 transformation#))))
-               m# (matching-paths m# ~bodies-v)))))
+  (let [bodies-v (vec bodies)]
+    `(loop [acc#    (unlazify-seqs ~m)
+            bodies# (partition 2 ~bodies-v)]
+       (if (not (empty? bodies#))
+         (recur
+          (reduce (fn [acc# [path# transformation#]]
+                    (cond
+                     (root-node? path#) (transformation# acc#)
+                     (new-path? path#)  (assoc-in acc# path#
+                                                  (cond
+                                                   (fn? transformation#) (transformation# acc#)
+                                                   :else                 transformation#))
+                     :else              (assoc-in acc# path#
+                                                  (cond
+                                                   (fn? transformation#) (transformation# (get-in acc# path#))
+                                                   :else                 transformation#))))
+                  acc# (partition 2 (expand-path acc# (first bodies#))))
+          (rest bodies#))
+         acc#))))
 
 (defmacro select
   [m & bodies]
@@ -141,7 +156,7 @@
                 (root-node? path#) (funk# acc# path#)
                 :else              (funk# (get-in acc# path#) path#))
                acc#)
-            ~m (matching-paths ~m ~bodies-v))))
+             ~m (matching-paths ~m ~bodies-v))))
 ;;
 ;; Helpers
 ;;

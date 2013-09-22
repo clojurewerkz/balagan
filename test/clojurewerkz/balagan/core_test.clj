@@ -14,7 +14,7 @@
      (is (= (count ~extracted)
             (count ~paths))
          (format "Unmatched extracted paths: %s"
-          (cs/difference (set ~extracted) (set ~paths))))
+                 (cs/difference (set ~extracted) (set ~paths))))
      (doseq [path# ~paths]
        (is (vec-contains? ~extracted path#)
            (format "Vector `%s` doesn't contain path `%s`" (vec ~extracted) path#)))))
@@ -46,50 +46,52 @@
 
 (deftest path-matches?-test
   (is (path-matches? [0 1 2] [0 1 2]))
-  (is (path-matches? [0 1 2] [0 :* 2]))
-  (is (path-matches? [:c :f :g 0] [:c :f :g :*]))
-  (is (path-matches? [0 1 2] [0 odd? 2])))
-
+  (is (path-matches? [0 :* 2] [0 1 2]))
+  (is (path-matches? [:c :f :g :*] [:c :f :g 0]))
+  (is (path-matches? [0 odd? 2] [0 1 2])))
 
 (deftest transform-test
-  (is (= {:a :b, :c {:f {:g [2 3 4]}, :d :e}})
-      (transform
-       {:a :b :c {:d :e :f {:g [1 2 3]}}}
-       [:c :f :g :*] inc)))
+  (let [res (transform
+             {:a :b :c {:d :e :f {:g [1 2 3]}}}
+             [:c :f :g :*] inc)]
+    (is (= {:a :b, :c {:f {:g [2 3 4]}, :d :e}})
+        res)))
 
 (deftest add-field-test
-  (is (= {:e :f :c :d :a :b}
-         (transform
-          {:a :b}
-          [] (do->
-              (add-field :c :d)
-              (add-field :e :f))))))
+  (let [res (transform
+             {:a :b}
+             [] (do->
+                 (add-field :c :d)
+                 (add-field :e :f)))]
+    (is (= {:e :f :c :d :a :b}
+           res))))
 
 (deftest remove-field-test
-  (is (= {:a :b}
-         (transform
-          {:e :f :c :d :a :b}
-          [] (do->
-              (remove-field :e)
-              (remove-field :c))))))
+  (let [res (transform
+             {:e :f :c :d :a :b}
+             [] (do->
+                 (remove-field :e)
+                 (remove-field :c)))]
+    (is (= {:a :b}
+           res))))
 
 (deftest fn-test
-  (let [m {:a :1}]
-    (is (= 2
-           (:b (transform m [] #(assoc % :b 2)))))))
+  (let [m {:a :1}
+        res (transform m [] #(assoc % :b 2))]
+    (is (= 2 (:b res)))))
 
 (deftest add-node-test
-  (let [m {:a 1}]
+  (let [m {:a 1}
+        res (transform m
+                       (new-path [:inc-a]) #(inc (:a %)))]
     (is (= 2
-           (:inc-a
-            (transform m
-                       (new-path [:inc-a]) #(inc (:a %)))))))
+           (:inc-a res))))
 
-  (let [m {:a :1}]
+  (let [m {:a :1}
+        res (transform m
+                       (new-path [:b]) 2)]
     (is (= 2
-           (:b
-            (transform m
-                       (new-path [:b]) 2))))))
+           (:b res)))))
 
 
 (deftest select-test
@@ -128,6 +130,18 @@
   (is (= [2 3 4]
          (transform [1 2 3]
                     [:*] inc)))
+  (is (= [3 4 5]
+         (transform (map inc [1 2 3])
+                    [:*] inc)))
   (is (= [{:a 2} {:a 3} {:a 4}]
          (transform [{:a 1} {:a 2} {:a 3}]
                     [:* :a] inc))))
+
+(deftest transform-dynamic-paths-test
+  (let [res (transform
+             {:a {:b {}}}
+             (new-path [:a :b :c]) (constantly {:d 1})
+             [:a :b :c :d] inc
+)]
+    (is (= {:a {:b {:c {:d 2}}}}
+           res))))
