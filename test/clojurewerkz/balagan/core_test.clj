@@ -122,3 +122,12 @@
   (is (= {:a {:b [3 4 5]}}
          (transform {:a {:b (map inc [1 2 3])}}
                     [:a :b :*] inc))))
+
+
+(deftest transform-vector-test
+  (is (= [2 3 4]
+         (transform [1 2 3]
+                    [:*] inc)))
+  (is (= [{:a 2} {:a 3} {:a 4}]
+         (transform [{:a 1} {:a 2} {:a 3}]
+                    [:* :a] inc))))
