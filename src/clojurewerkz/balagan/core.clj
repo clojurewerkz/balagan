@@ -72,7 +72,11 @@
 
   Object
   (recurse-with-path [m path]
-    (p path)))
+    (p path))
+
+  nil
+  (recurse-with-path [m path]
+    nil))
 
 (defn extract-paths
   "Extracts paths from the given sequence"

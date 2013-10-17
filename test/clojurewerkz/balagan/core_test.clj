@@ -145,3 +145,12 @@
 )]
     (is (= {:a {:b {:c {:d 2}}}}
            res))))
+
+
+(deftest transform-empty-list
+  (let [res (transform [{:a {:b '()}}
+                        {:a {:b (map (constantly 1) [1])}}
+                        {:a 1}]
+                       [:* :a :b :*] inc)]
+    (is (= [{:a {:b '()}} {:a {:b [2]}} {:a 1}]
+           res))))
