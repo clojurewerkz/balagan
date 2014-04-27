@@ -3,15 +3,13 @@
 
 (defn unlazify-seqs
   [m]
-  (let [f (fn [[k v]]
-            (if (instance? clojure.lang.LazySeq v)
-                       [k (vec v)]
-                       [k v]))]
+  (let [f (fn [[k v]] (if (seq? v) [k (vec v)] [k v]))]
     (clojure.walk/postwalk (fn [x]
                              (cond
                               (map? x) (into {} (map f x))
                               (sequential? x) (into [] (map identity x))
                               :else x)) m)))
+
 
 (def star-node  :*)
 (def star?      #(= star-node %))
@@ -48,35 +46,22 @@
   (filter path?
           (rest (tree-seq sequential? seq x))))
 
-(defprotocol RecurseWithPath
-  (recurse-with-path [v path]))
-
-(extend-protocol RecurseWithPath
-  clojure.lang.IPersistentMap
-  (recurse-with-path [m path]
-    (conj
-     (for [[k v] m]
-       (recurse-with-path v (conj path k)))
-     (p path)))
-
-  clojure.lang.IPersistentCollection
-  (recurse-with-path [m path]
-    (conj
-     (for [[k v] (indexed m)]
-       (recurse-with-path v (p (conj path k))))
-     (p path)))
-
-  clojure.lang.LazySeq
-  (recurse-with-path [m path]
-    (recurse-with-path (vec m) path))
-
-  Object
-  (recurse-with-path [m path]
-    (p path))
-
-  nil
-  (recurse-with-path [m path]
-    nil))
+(defn recurse-with-path
+  [m path]
+  (cond
+   (map? m) (conj
+             (for [[k v] m]
+               (recurse-with-path v (conj path k)))
+             (p path))
+   (or (seq? m)
+       (list? m)) (recurse-with-path (mapv identity m) path)
+   (or
+       (vector? m)
+       (set? m)) (conj
+                   (for [[k v] (indexed m)]
+                     (recurse-with-path v (p (conj path k))))
+                   (p path))
+   :else    (p path)))
 
 (defn extract-paths
   "Extracts paths from the given sequence"
@@ -161,6 +146,7 @@
                 :else              (funk# (get-in acc# path#) path#))
                acc#)
              ~m (matching-paths ~m ~bodies-v))))
+
 ;;
 ;; Helpers
 ;;

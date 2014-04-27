@@ -43,7 +43,6 @@
                      [:c :f :g 1]
                      [:c :f :g 2]])))
 
-
 (deftest path-matches?-test
   (is (path-matches? [0 1 2] [0 1 2]))
   (is (path-matches? [0 :* 2] [0 1 2]))
@@ -141,8 +140,7 @@
   (let [res (transform
              {:a {:b {}}}
              (new-path [:a :b :c]) (constantly {:d 1})
-             [:a :b :c :d] inc
-)]
+             [:a :b :c :d] inc)]
     (is (= {:a {:b {:c {:d 2}}}}
            res))))
 
