@@ -65,11 +65,11 @@ represented as hash:
 Now, we can start transforming users the way we want: add, remove fields based on certain conditions.
 
 ```clojure
-(transform user
+(update user
            []                  (add-field :cool-dude true) ;; adds a field :cool-dude with value true
            (new-path [:age])   #(- 2013 (:birth-year %))   ;; explicit adding of a new field, calculated from the existing data
            (new-path [:posts]) #(fetch-posts (:name %))    ;; fetching some related data from the DB
-           [:posts :*]         #(transform-posts %))       ;; apply some transformations to all the fetched posts, if there are any
+           [:posts :*]         #(update-posts %))       ;; apply some transformations to all the fetched posts, if there are any
 ```
 
 ### Queries

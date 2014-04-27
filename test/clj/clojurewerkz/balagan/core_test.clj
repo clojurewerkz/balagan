@@ -50,14 +50,14 @@
   (is (path-matches? [0 odd? 2] [0 1 2])))
 
 (deftest transform-test
-  (let [res (transform
+  (let [res (update
              {:a :b :c {:d :e :f {:g [1 2 3]}}}
              [:c :f :g :*] inc)]
     (is (= {:a :b, :c {:f {:g [2 3 4]}, :d :e}})
         res)))
 
 (deftest add-field-test
-  (let [res (transform
+  (let [res (update
              {:a :b}
              [] (do->
                  (add-field :c :d)
@@ -66,7 +66,7 @@
            res))))
 
 (deftest remove-field-test
-  (let [res (transform
+  (let [res (update
              {:e :f :c :d :a :b}
              [] (do->
                  (remove-field :e)
@@ -76,18 +76,18 @@
 
 (deftest fn-test
   (let [m {:a :1}
-        res (transform m [] #(assoc % :b 2))]
+        res (update m [] #(assoc % :b 2))]
     (is (= 2 (:b res)))))
 
 (deftest add-node-test
   (let [m {:a 1}
-        res (transform m
+        res (update m
                        (new-path [:inc-a]) #(inc (:a %)))]
     (is (= 2
            (:inc-a res))))
 
   (let [m {:a :1}
-        res (transform m
+        res (update m
                        (new-path [:b]) 2)]
     (is (= 2
            (:b res)))))
@@ -121,23 +121,23 @@
 
 (deftest transform-lazy-test
   (is (= {:a {:b [3 4 5]}}
-         (transform {:a {:b (map inc [1 2 3])}}
+         (update {:a {:b (map inc [1 2 3])}}
                     [:a :b :*] inc))))
 
 
 (deftest transform-vector-test
   (is (= [2 3 4]
-         (transform [1 2 3]
+         (update [1 2 3]
                     [:*] inc)))
   (is (= [3 4 5]
-         (transform (map inc [1 2 3])
+         (update (map inc [1 2 3])
                     [:*] inc)))
   (is (= [{:a 2} {:a 3} {:a 4}]
-         (transform [{:a 1} {:a 2} {:a 3}]
+         (update [{:a 1} {:a 2} {:a 3}]
                     [:* :a] inc))))
 
 (deftest transform-dynamic-paths-test
-  (let [res (transform
+  (let [res (update
              {:a {:b {}}}
              (new-path [:a :b :c]) (constantly {:d 1})
              [:a :b :c :d] inc)]
@@ -146,7 +146,7 @@
 
 
 (deftest transform-empty-list
-  (let [res (transform [{:a {:b '()}}
+  (let [res (update [{:a {:b '()}}
                         {:a {:b (map (constantly 1) [1])}}
                         {:a 1}]
                        [:* :a :b :*] inc)]

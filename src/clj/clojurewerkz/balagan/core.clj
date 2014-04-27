@@ -1,6 +1,10 @@
 (ns clojurewerkz.balagan.core
   (:require clojure.walk))
 
+;;
+;; Impl
+;;
+
 (defn unlazify-seqs
   [m]
   (let [f (fn [[k v]] (if (seq? v) [k (vec v)] [k v]))]
@@ -15,7 +19,7 @@
 (def star?      #(= star-node %))
 (def root-node? #(empty? %))
 
-(defn indexed
+(defn- indexed
   "Returns a lazy sequence of [index, item] pairs, where items come
   from 's' and indexes count up from zero.
 
@@ -115,7 +119,16 @@
          (mapcat identity)
          (apply hash-map))))
 
-(defmacro transform
+(defn do->
+  "Chains (composes) several transformations. Applies functions from left to right."
+  [& fns]
+  #(reduce (fn [acc f] (f acc)) % fns))
+
+;;
+;; Macros
+;;
+
+(defmacro update
   [m & bodies]
   (let [bodies-v (vec bodies)]
     `(loop [acc#    (unlazify-seqs ~m)
@@ -162,8 +175,3 @@
   [field]
   `(fn [m#]
      (dissoc m# ~field)))
-
-(defn do->
-  "Chains (composes) several transformations. Applies functions from left to right."
-  [& fns]
-  #(reduce (fn [acc f] (f acc)) % fns))
