@@ -1,6 +1,10 @@
 (ns clojurewerkz.balagan.core
   (:require clojure.walk))
 
+;;
+;; Impl
+;;
+
 (defn unlazify-seqs
   [m]
   (let [f (fn [[k v]] (if (seq? v) [k (vec v)] [k v]))]
@@ -14,9 +18,8 @@
 (def star-node  :*)
 (def star?      #(= star-node %))
 (def root-node? #(empty? %))
-(def new-path-node :__new-path__)
 
-(defn indexed
+(defn- indexed
   "Returns a lazy sequence of [index, item] pairs, where items come
   from 's' and indexes count up from zero.
 
@@ -29,18 +32,18 @@
   (and (sequential? v)
        (:path (meta v))))
 
-(defn is-new-path?
+(defn new-path?
   [v]
   (and (path? v)
-       (new-path-node (meta v))))
+       (:new-path (meta v))))
 
 (defn- p
   [v]
   (vary-meta v assoc :path true))
 
-(defn make-new-path
+(defn mk-path
   [v]
-  (p (vary-meta v assoc new-path-node true)))
+  (p (vary-meta v assoc :new-path true)))
 
 (defn- get-paths
   [x]
@@ -56,13 +59,13 @@
              (p path))
    (or (seq? m)
        (list? m)) (recurse-with-path (mapv identity m) path)
-   (or
-       (vector? m)
-       (set? m)) (conj
+       (or
+        (vector? m)
+        (set? m)) (conj
                    (for [[k v] (indexed m)]
                      (recurse-with-path v (p (conj path k))))
                    (p path))
-   :else    (p path)))
+        :else    (p path)))
 
 (defn extract-paths
   "Extracts paths from the given sequence"
@@ -97,7 +100,7 @@
   [paths pattern]
   (let [matched-parts (filter (partial path-matches? pattern) paths)]
     (vec
-     (if (is-new-path? pattern)
+     (if (new-path? pattern)
        (conj matched-parts pattern)
        matched-parts))))
 
@@ -120,3 +123,52 @@
   "Chains (composes) several transformations. Applies functions from left to right."
   [& fns]
   #(reduce (fn [acc f] (f acc)) % fns))
+
+(defn update
+  [m & bodies]
+  (let [bodies-v (vec bodies)]
+    (loop [acc    (unlazify-seqs m)
+           bodies (partition 2 bodies-v)]
+      (if (not (empty? bodies))
+        (recur
+         (reduce (fn [acc [path transformation]]
+                   (cond
+                    (root-node? path) (transformation acc)
+                    (new-path? path)  (assoc-in acc path
+                                                (cond
+                                                 (fn? transformation) (transformation acc)
+                                                 :else                 transformation))
+                    :else              (assoc-in acc path
+                                                 (cond
+                                                  (fn? transformation) (transformation (get-in acc path))
+                                                  :else                 transformation))))
+                 acc (partition 2 (expand-path acc (first bodies))))
+         (rest bodies))
+        acc))))
+
+(defn select
+  [m & bodies]
+  (let [bodies-v (vec bodies)]
+    (reduce (fn [acc [path funk]]
+              (cond
+               (root-node? path) (funk acc path)
+               :else             (funk (get-in acc path) path))
+              acc)
+            m (matching-paths m bodies-v))))
+
+  ;;
+  ;; Helpers
+  ;;
+
+
+(defn add-field
+  "Adds field to the selected entry"
+  [field body]
+  (fn [m]
+    (assoc m field body)))
+
+(defn remove-field
+  "Removes field from selected entry"
+  [field]
+  (fn [m]
+    (dissoc m field)))
