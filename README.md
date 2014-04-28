@@ -1,4 +1,4 @@
-# What Is Balagan
+# Balagan, Clojure (Script) data transformation and querying library
 
 A tiny library for data structure transformation inspired by [Enlive](https://github.com/cgrand/enlive).
 
@@ -8,12 +8,13 @@ too nested) or you're too far away from data, and your functions operate nested 
 they were plain.
 
 Bałagan solves that problem for you by providing you with predicate-based selectors and arbitrary
-transformation functions that suits any taste.
+transformation functions that suits any taste. It's mostly like `get-in` and `update-in` on steroids, 
+that allows you to build predicate queries, not only concrete ones.
 
 ## Project Maturity
 
-Balagan is a **very** young project.
-
+Balagan is a fairly young project, but it's been used in production for around a year by now, 
+and has proven itself to be safe and stable.
 
 ## Artifacts
 
@@ -74,6 +75,23 @@ Now, we can start transforming users the way we want: add, remove fields based o
 
 ### Queries
 
+Queries are very similar to how you'd query your data with `filter` in Clojure:
+
+```clj
+(let [data {:a {:b [{:c 1} {:c 2} {:c 3}]
+                :d [{:c 5} {:c 6} {:c 7}]}}]
+  (select data  [:* :* even? :c]))
+;; => (1 3 5 7)  
+```
+
+Results are returned in the order they've been seen in your data structure, however you should be aware of the 
+fact that iterating over the hash in Clojure doesn't guarantee you order.
+
+### Path Queries
+
+Path queries are most useful when you'd like to fire a function against some part of your data (be it processing,
+database initialization or anything else.
+
 You can also run predicate queries based on your map, for example if you want to configure your database servers
 from rather big and complex config:
 
@@ -83,7 +101,7 @@ from rather big and complex config:
                     :pubsub [{:host "host01" :port 1234} {:host "host02" :port 1234}]}}
            :cassandra [{:host "host01"} {:host "host02"}]})
 
-(select conf
+(with-paths conf
         [:db :redis :cache]  configure-redis-cache
         [:db :redis :pubsub] configure-redis-pubsub
         [:db :cassandra]     configure-cassandra)
@@ -101,6 +119,14 @@ In this example, `configure-redis-cache` funciton will receive two arguments: `v
 ;; => Path: [:db :redis :cache]
 ```
 
+You can also do wildcard-matching with `:*`, for example: 
+
+```clj
+(b/select {:a {:b {:c 1} :d {:c 2}}}
+          [:a :* :c] (fn [val path]
+                       (if (= path [:a :b :c])
+                         (is (= val 1))
+                         (is (= val 2)))))
 
 ## Community
 
