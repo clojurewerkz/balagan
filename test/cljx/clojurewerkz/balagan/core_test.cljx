@@ -95,31 +95,46 @@
            (:b res)))))
 
 
+(deftest match-found-test
+  (let [match-found (atom nil)]
+    (b/with-paths {:a :b :c {:d :e :f {:g [1 2 3]}}}
+      [:a] #(do
+              (reset! match-found true)
+              (is (= :b %1))
+              (is (= [:a] %2))))
+    (is @match-found))
+
+  (let [match-found (atom nil)]
+    (b/with-paths {:a {:b {:c 1} :d {:c 2}}}
+      [:a :* :c] (fn [val path]
+                   (reset! match-found true)
+                   (if (= path [:a :b :c])
+                     (is (= val 1))
+                     (is (= val 2)))))
+    (is @match-found))
+
+  (let [match-found (atom nil)]
+    (b/with-paths {:a {1 {:c 1} 2 {:c 2} 3 {:c 3}}}
+      [:a odd? :c] (fn [val path]
+                     (reset! match-found true)
+                     (if (= path [:a 1 :c])
+                       (is (= val 1))
+                       (is (= val 3)))))
+    (is @match-found))
+
+
+  (let [match-found (atom nil)]
+    (b/with-paths {:a [{:c 1} {:c 2} {:c 3}]}
+      [:a even? :c] (fn [val path]
+                      (reset! match-found true)
+                      (if (= path [:a 0 :c])
+                        (is (= val 1))
+                        (is (= val 3)))))
+    (is @match-found)))
+
 (deftest select-test
-  (b/select {:a :b :c {:d :e :f {:g [1 2 3]}}}
-          [:a] #(do
-                  (is (= :b %1))
-                  (is (= [:a] %2))))
-
-
-  (b/select {:a {:b {:c 1} :d {:c 2}}}
-          [:a :* :c] (fn [val path]
-                       (if (= path [:a :b :c])
-                         (is (= val 1))
-                         (is (= val 2)))))
-
-  (b/select {:a {1 {:c 1} 2 {:c 2} 3 {:c 3}}}
-          [:a odd? :c] (fn [val path]
-                         (if (= path [:a 1 :c])
-                           (is (= val 1))
-                           (is (= val 3)))))
-
-  (b/select {:a [{:c 1} {:c 2} {:c 3}]}
-          [:a even? :c] (fn [val path]
-                          (if (= path [:a 0 :c])
-                            (is (= val 1))
-                            (is (= val 3))))))
-
+  (is (= [1 3]
+         (b/select {:a {:b [{:c 1} {:c 2} {:c 3}]}} [:* :* even? :c]))))
 
 (deftest transform-lazy-test
   (is (= {:a {:b [3 4 5]}}
@@ -154,3 +169,7 @@
                       [:* :a :b :*] inc)]
     (is (= [{:a {:b '()}} {:a {:b [2]}} {:a 1}]
            res))))
+
+(let [data {:a {:b [{:c 1} {:c 2} {:c 3}]
+                :d [{:c 5} {:c 6} {:c 7}]}}]
+  (select data  [:* :* even? :c]))

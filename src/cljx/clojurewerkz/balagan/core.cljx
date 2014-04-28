@@ -107,7 +107,7 @@
 (defn expand-path
   [m [selector transformation]]
   (let [all-paths (extract-paths m)
-        paths (filter-matching-paths all-paths selector)]
+        paths     (filter-matching-paths all-paths selector)]
     (interleave paths (repeat (count paths) transformation))))
 
 (defn matching-paths
@@ -115,9 +115,9 @@
   (let [all-paths (extract-paths m)
         expand-fn (partial expand-path m)]
     (->> (partition 2 (vec bodies))
-         expand-fn
+         (map expand-fn)
          (mapcat identity)
-         (apply hash-map))))
+         (partition 2))))
 
 (defn do->
   "Chains (composes) several transformations. Applies functions from left to right."
@@ -146,7 +146,7 @@
          (rest bodies))
         acc))))
 
-(defn select
+(defn with-paths
   [m & bodies]
   (let [bodies-v (vec bodies)]
     (reduce (fn [acc [path funk]]
@@ -156,9 +156,16 @@
               acc)
             m (matching-paths m bodies-v))))
 
-  ;;
-  ;; Helpers
-  ;;
+(defn select
+  [m query]
+  (map (fn [[path _]]
+            (if (root-node? path)
+              m
+              (get-in m path)))
+          (matching-paths m [query nil])))
+;;
+;; Helpers
+;;
 
 
 (defn add-field
