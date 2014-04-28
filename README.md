@@ -27,7 +27,7 @@ Bałagan artifacts are [released to Clojars](https://clojars.org/clojurewerkz/ba
 </repository>
 ```
 
-### Most recent pre-release version
+### Most recent release version
 
 With Leiningen:
 
