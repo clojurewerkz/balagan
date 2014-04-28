@@ -127,6 +127,7 @@ You can also do wildcard-matching with `:*`, for example:
                        (if (= path [:a :b :c])
                          (is (= val 1))
                          (is (= val 2)))))
+```
 
 ## Community
 
