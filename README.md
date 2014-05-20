@@ -68,8 +68,8 @@ Now, we can start transforming users the way we want: add, remove fields based o
 ```clojure
 (update user
            []                  (add-field :cool-dude true) ;; adds a field :cool-dude with value true
-           (new-path [:age])   #(- 2014 (:birth-year %))   ;; explicit adding of a new field, calculated from the existing data
-           (new-path [:posts]) #(fetch-posts (:name %))    ;; fetching some related data from the DB
+           (mk-path [:age])   #(- 2014 (:birth-year %))   ;; explicit adding of a new field, calculated from the existing data
+           (mk-path [:posts]) #(fetch-posts (:name %))    ;; fetching some related data from the DB
            [:posts :*]         #(update-posts %))       ;; apply some transformations to all the fetched posts, if there are any
 ```
 
