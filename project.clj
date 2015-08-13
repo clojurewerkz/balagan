@@ -1,9 +1,9 @@
-(defproject clojurewerkz/balagan "1.1.0-SNAPSHOT"
+(defproject clojurewerkz/balagan "1.0.1"
   :description "A tiny library for data structure transformation and querying"
   :url "http://github.com/clojurewerkz/balagan"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.6.0"]]
+  :dependencies [[org.clojure/clojure "1.7.0"]]
 
   :source-paths ["src/cljx" "target/classes"]
   :test-paths   ["target/test-classes"]
