@@ -9,9 +9,7 @@
   :test-paths   ["target/test-classes"]
 
 
-  :profiles {:1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
-             :1.5 {:dependencies [[org.clojure/clojure "1.5.1"]]}
-             :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}
+  :profiles {:1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}
              :master {:dependencies [[org.clojure/clojure "1.8.0-master-SNAPSHOT"]]}
              :dev {:dependencies [[org.clojure/clojurescript "0.0-2138"]]
                    :plugins [[codox "0.8.10"]
@@ -38,7 +36,7 @@
                                                     :optimizations :advanced}}]}
                    :codox {:sources ["src/cljx"]
                            :output-dir "doc/api"}}}
-  :aliases  {"all" ["with-profile" "+dev:+1.4:+1.5:+master:+1.7"]}
+  :aliases  {"all" ["with-profile" "+dev:+master:+1.6"]}
   :jar-exclusions [#"\.cljx"]
   :repositories {"sonatype" {:url "http://oss.sonatype.org/content/repositories/releases"
                              :snapshots false
