@@ -1,4 +1,5 @@
 (ns clojurewerkz.balagan.core
+  (:refer-clojure :exclude [update])
   (:require clojure.walk))
 
 ;;
