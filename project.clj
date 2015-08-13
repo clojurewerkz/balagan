@@ -1,4 +1,4 @@
-(defproject clojurewerkz/balagan "1.0.1"
+(defproject clojurewerkz/balagan "1.1.0-SNAPSHOT"
   :description "A tiny library for data structure transformation and querying"
   :url "http://github.com/clojurewerkz/balagan"
   :license {:name "Eclipse Public License"
