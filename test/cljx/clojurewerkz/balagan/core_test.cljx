@@ -172,4 +172,4 @@
 
 (let [data {:a {:b [{:c 1} {:c 2} {:c 3}]
                 :d [{:c 5} {:c 6} {:c 7}]}}]
-  (select data  [:* :* even? :c]))
+  (b/select data  [:* :* even? :c]))
