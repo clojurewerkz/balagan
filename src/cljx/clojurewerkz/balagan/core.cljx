@@ -6,14 +6,13 @@
 ;; Impl
 ;;
 
-(defn unlazify-seqs
+(defn- seqs->vectors
   [m]
-  (let [f (fn [[k v]] (if (seq? v) [k (vec v)] [k v]))]
-    (clojure.walk/postwalk (fn [x]
-                             (cond
-                              (map? x) (into {} (map f x))
-                              (sequential? x) (into [] (map identity x))
-                              :else x)) m)))
+  (clojure.walk/postwalk (fn [x]
+                           (if (and (sequential? x) (not (vector? x)))
+                             (vec x)
+                             x))
+                         m))
 
 
 (def star-node  :*)
@@ -128,7 +127,7 @@
 (defn update
   [m & bodies]
   (let [bodies-v (vec bodies)]
-    (loop [acc    (unlazify-seqs m)
+    (loop [acc    (seqs->vectors m)
            bodies (partition 2 bodies-v)]
       (if (not (empty? bodies))
         (recur
