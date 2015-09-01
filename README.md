@@ -32,7 +32,7 @@ Bałagan artifacts are [released to Clojars](https://clojars.org/clojurewerkz/ba
 With Leiningen:
 
 ```clojure
-[clojurewerkz/balagan "1.0.3"]
+[clojurewerkz/balagan "1.0.5"]
 ```
 
 With Maven:
@@ -41,7 +41,7 @@ With Maven:
 <dependency>
   <groupId>clojurewerkz</groupId>
   <artifactId>balagan</artifactId>
-  <version>1.0.3</version>
+  <version>1.0.5</version>
 </dependency>
 ```
 
