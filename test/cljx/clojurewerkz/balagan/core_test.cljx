@@ -55,8 +55,8 @@
   (let [res (b/update
              {:a :b :c {:d :e :f {:g [1 2 3]}}}
              [:c :f :g :*] inc)]
-    (is (= {:a :b, :c {:f {:g [2 3 4]}, :d :e}})
-        res)))
+    (is (= {:a :b, :c {:f {:g [2 3 4]}, :d :e}}
+           res))))
 
 (deftest add-field-test
   (let [res (b/update

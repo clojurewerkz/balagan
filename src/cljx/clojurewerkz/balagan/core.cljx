@@ -6,14 +6,13 @@
 ;; Impl
 ;;
 
-(defn unlazify-seqs
+(defn- seqs->vectors
   [m]
-  (let [f (fn [[k v]] (if (seq? v) [k (vec v)] [k v]))]
-    (clojure.walk/postwalk (fn [x]
-                             (cond
-                              (map? x) (into {} (map f x))
-                              (sequential? x) (into [] (map identity x))
-                              :else x)) m)))
+  (clojure.walk/postwalk (fn [x]
+                           (if (and (sequential? x) (not (vector? x)))
+                             (vec x)
+                             x))
+                         m))
 
 
 (def star-node  :*)
@@ -59,7 +58,7 @@
                (recurse-with-path v (conj path k)))
              (p path))
    (or (seq? m)
-       (list? m)) (recurse-with-path (mapv identity m) path)
+       (list? m)) (recurse-with-path (vec m) path)
        (or
         (vector? m)
         (set? m)) (conj
@@ -116,8 +115,7 @@
   (let [all-paths (extract-paths m)
         expand-fn (partial expand-path m)]
     (->> (partition 2 (vec bodies))
-         (map expand-fn)
-         (mapcat identity)
+         (mapcat expand-fn)
          (partition 2))))
 
 (defn do->
@@ -128,7 +126,7 @@
 (defn update
   [m & bodies]
   (let [bodies-v (vec bodies)]
-    (loop [acc    (unlazify-seqs m)
+    (loop [acc    (seqs->vectors m)
            bodies (partition 2 bodies-v)]
       (if (not (empty? bodies))
         (recur
