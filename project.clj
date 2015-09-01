@@ -1,4 +1,4 @@
-(defproject clojurewerkz/balagan "1.0.4"
+(defproject clojurewerkz/balagan "1.0.5"
   :description "A tiny library for data structure transformation and querying"
   :url "http://github.com/clojurewerkz/balagan"
   :license {:name "Eclipse Public License"
@@ -34,6 +34,7 @@
                    :codox {:sources ["src/cljx"]
                            :output-dir "doc/api"}}}
   :aliases  {"all" ["with-profile" "+dev:+master:+1.6"]}
+  :prep-tasks [["cljx" "once"] "javac" "compile"]
   :repositories {"sonatype" {:url "http://oss.sonatype.org/content/repositories/releases"
                              :snapshots false
                              :releases {:checksum :fail :update :always}}
