@@ -58,7 +58,7 @@
                (recurse-with-path v (conj path k)))
              (p path))
    (or (seq? m)
-       (list? m)) (recurse-with-path (mapv identity m) path)
+       (list? m)) (recurse-with-path (vec m) path)
        (or
         (vector? m)
         (set? m)) (conj
@@ -115,8 +115,7 @@
   (let [all-paths (extract-paths m)
         expand-fn (partial expand-path m)]
     (->> (partition 2 (vec bodies))
-         (map expand-fn)
-         (mapcat identity)
+         (mapcat expand-fn)
          (partition 2))))
 
 (defn do->
