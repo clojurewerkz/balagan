@@ -171,6 +171,6 @@ languages.
 
 ## License
 
-Copyright © 2014-2015 Alex P, Michael S. Klishin, and the ClojureWerkz team.
+Copyright © 2014-2016 Alex P, Michael S. Klishin, and the ClojureWerkz team.
 
 Distributed under the Eclipse Public License, the same as Clojure.
