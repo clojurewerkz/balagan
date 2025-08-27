@@ -112,8 +112,7 @@
 
 (defn matching-paths
   [m bodies]
-  (let [all-paths (extract-paths m)
-        expand-fn (partial expand-path m)]
+  (let [expand-fn (partial expand-path m)]
     (->> (partition 2 (vec bodies))
          (mapcat expand-fn)
          (partition 2))))
